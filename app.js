@@ -288,7 +288,6 @@ let initDraw = function (canvas) {
 		restartMenu.classList.remove("hidden");
 	});
 
-	console.log(restartButton);
 	restartButton.addEventListener("click", () => {
 		restartMenu.classList.add("hidden");
 		display.reset();
@@ -302,17 +301,21 @@ let initDraw = function (canvas) {
 
 	window.addEventListener("keydown", e => {
 		switch (e.key) {
+			case "ArrowUp":
 			case "w":
 				snake.move("up");
 				break;
+			case "ArrowDown":
 			case "s":
-				snake.move("down")
+				snake.move("down");
 				break;
+			case "ArrowLeft":
 			case "a":
-				snake.move("left")
+				snake.move("left");
 				break;
+			case "ArrowRight":
 			case "d":
-				snake.move("right")
+				snake.move("right");
 				break;
 			case "Escape":
 				draw.stop();
