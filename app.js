@@ -21,14 +21,7 @@ class Grid {
 		this.heightSquares = Math.round(this.canvas.height / this.squareSize) + 1;
 
 		if (!this.apple.gridX) {
-			let gridX = randInt(0, this.widthSquares - 1);
-			let gridY = randInt(0, this.heightSquares - 1);
-			this.apple = {
-				gridX,
-				gridY,
-				x: gridX * this.squareSize,
-				y: gridY * this.squareSize,
-			}
+			this.setNewApple();
 		}
 
 		ctx.save();
@@ -47,8 +40,8 @@ class Grid {
 		ctx.restore();
 	}
 	setNewApple() {
-		let gridX = randInt(0, this.widthSquares - 1);
-		let gridY = randInt(0, this.heightSquares - 1);
+		let gridX = randInt(0, this.widthSquares - 2);
+		let gridY = randInt(0, this.heightSquares - 2);
 		this.apple = {
 			gridX,
 			gridY,
