@@ -1,11 +1,3 @@
-// [
-// 	[0,0,0,x,0],
-// 	[0,d,r,d,0],
-// 	[0,d,u,d,0],
-// 	[0,r,u,d,0],
-// 	[0,0,0,d,0]
-// ]
-
 function resize(canvas) {
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
@@ -26,6 +18,7 @@ class Grid {
 		this.apple = {}
 		this.widthSquares = 0;
 		this.heightSquares = 0;
+		this.gameEnd = false;
 	}
 	paint(ctx) {
 		this.widthSquares = Math.round(this.canvas.width / this.squareSize) + 1;
@@ -47,6 +40,8 @@ class Grid {
 			for (var widthCount = 0; widthCount < this.widthSquares; widthCount++) {
 				if (this.apple.gridX === widthCount && this.apple.gridY === heightCount) {
 					ctx.fillStyle = "red";
+				} else if (this.gameEnd) {
+					ctx.fillStyle = "#2e1d1d";
 				} else {
 					ctx.fillStyle = "#000";
 				}
@@ -70,12 +65,22 @@ class Display {
 	constructor(canvas) {
 		this.canvas = canvas;
 		this.score = 0;
+		this.gameEnd = false;
 	}
 	paint(ctx) {
 		ctx.save();
 		ctx.fillStyle = 'white';
-		ctx.font = '40px sans-serif';
+		ctx.font = '32px sans-serif';
 		ctx.fillText(`Score: ${this.score}`, 10, 50);
+		ctx.restore();
+		ctx.save();
+		if (this.gameEnd) {
+			let textSize = this.canvas.width / 10;
+			ctx.fillStyle = 'white';
+			ctx.font = `${textSize}px sans-serif`;
+			ctx.textAlign = "center";
+			ctx.fillText(`YOU LOST`, this.canvas.width / 2, this.canvas.height / 2 + textSize / 2);
+		}
 		ctx.restore();
 	}
 	increaseScore() {
@@ -99,6 +104,7 @@ class Snake {
 		];
 		this.color = "#2ce82f";
 		this.gameEnd = false;
+		this.paused = false;
 	}
 	genSnakePos() {
 		let widthSquares = Math.floor(window.innerWidth / this.squareSize);
@@ -109,15 +115,16 @@ class Snake {
 		this.headPos.y = y;
 	}
 	paint(ctx) {
-		if (this.gameEnd) return false;
 		let direction = this.headDirection[0];
 		let queuedDirections = this.headDirection.length > 1;
 		let xDistance = direction.speedX;
 		let yDistance = direction.speedY;
 
-		this.headPos.x += xDistance;
-		this.headPos.y += yDistance;
-		this.travelledDistance += (Math.abs(xDistance) + Math.abs(yDistance));
+		if (!this.gameEnd && !this.paused) {
+			this.headPos.x += xDistance;
+			this.headPos.y += yDistance;
+			this.travelledDistance += (Math.abs(xDistance) + Math.abs(yDistance));
+		}
 
 
 		// check if head is over grid cell --> move to next direction
@@ -176,14 +183,12 @@ class Snake {
 			let tail = this.tail[i];
 			let xDifference = Math.abs(Math.round(tail.x - this.headPos.x));
 			let yDifference = Math.abs(Math.round(tail.y - this.headPos.y));
-			if (xDifference === 0 && yDifference === 0) {
+			if (xDifference === 0 && yDifference === 0 && !this.paused && !this.gameEnd) {
 				this.gameEnd = true;
 				const snakeDiedEvent = new CustomEvent('snake-died', { detail: data });
 				document.dispatchEvent(snakeDiedEvent);
-				return false;
 			}
 		}
-		return true;
 	}
 	move(direction) {
 		let opposites = {
@@ -220,6 +225,12 @@ class Snake {
 		this.gameEnd = false;
 		this.travelledDistance = 0;
 		this.genSnakePos();
+	}
+	pause() {
+		this.paused = true;
+	}
+	resume() {
+		this.paused = false;
 	}
 }
 
@@ -322,7 +333,7 @@ function handleGesture(selector) {
 
 	const grid = new Grid(canvas);
 	const snake = new Snake(canvas);
-	const display = new Display();
+	const display = new Display(canvas);
 
 	draw.addShape(grid);
 	draw.addShape(snake);
@@ -343,6 +354,8 @@ function handleGesture(selector) {
 	document.addEventListener("snake-died", (e) => {
 		pauseButton.className = "ended";
 		pauseButton.innerHTML = "&#9654;";
+		grid.gameEnd = true;
+		display.gameEnd = true;
 	});
 
 
@@ -386,18 +399,20 @@ function handleGesture(selector) {
 	function pauseGame() {
 		pauseButton.className = "paused";
 		pauseButton.innerHTML = "&#9654;";
-		draw.stop();
+		snake.pause();
 	}
 	function resumeGame() {
 		pauseButton.className = "";
 		pauseButton.innerHTML = "&#10074;&#10074;";
-		draw.start();
+		snake.resume();
 	}
 	function restartGame() {
 		pauseButton.className = "";
 		pauseButton.innerHTML = "&#10074;&#10074;";
 		display.reset();
 		snake.reset();
+		grid.gameEnd = false;
+		display.gameEnd = false;
 	}
 
 
