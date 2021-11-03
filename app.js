@@ -100,17 +100,24 @@ class Snake {
 		this.tailLength = 5;
 		this.tail = [];
 		this.headPos = {}
-		this.genSnakePos();
-		this.headDirection = [
-			{ speedX: -1, speedY: 0, type: "left" }
-		];
+		this.headDirection = [];
 		this.color = "#2ce82f";
 		this.gameEnd = false;
 		this.paused = false;
+		this.genSnake();
 	}
-	genSnakePos() {
-		let widthSquares = Math.floor(window.innerWidth / this.squareSize);
-		let heightSquares = Math.floor(window.innerHeight / this.squareSize);
+	genSnake() {
+		let directions = [
+			{ speedX: -1, speedY: 0, type: "left" },
+			{ speedX: 1, speedY: 0, type: "right" },
+			{ speedX: 0, speedY: -1, type: "up" },
+			{ speedX: 0, speedY: 1, type: "down" }
+		];
+		let randomDirection = directions[randInt(0, 3)];
+		this.headDirection = [randomDirection];
+
+		let widthSquares = Math.floor(window.innerWidth / this.squareSize) - 1;
+		let heightSquares = Math.floor(window.innerHeight / this.squareSize) - 1;
 		let x = randInt(0, widthSquares) * this.squareSize;
 		let y = randInt(0, heightSquares) * this.squareSize;
 		this.headPos.x = x
@@ -227,7 +234,7 @@ class Snake {
 		this.tail = [];
 		this.gameEnd = false;
 		this.travelledDistance = 0;
-		this.genSnakePos();
+		this.genSnake();
 	}
 	pause() {
 		this.paused = true;
