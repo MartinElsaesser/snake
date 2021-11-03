@@ -9,7 +9,8 @@
 	<style>
 		* {
 			margin: 0;
-			padding: 0
+			padding: 0;
+			box-sizing: border-box;
 		}
 
 		body,
@@ -22,8 +23,8 @@
 			background-color: black;
 		}
 
-		#restart,
-		#pause {
+		#restart-screen,
+		#pause-screen {
 			position: absolute;
 			top: 50%;
 			left: 50%;
@@ -39,55 +40,107 @@
 			transition: opacity 1s;
 		}
 
-		#restart.hidden,
-		#pause.hidden {
+		#restart-screen.hidden,
+		#pause-screen.hidden {
 			opacity: 0;
 			z-index: -1;
 		}
 
-		#restart.hidden *,
-		#pause.hidden * {
+		#restart-screen.hidden *,
+		#pause-screen.hidden * {
 			display: none;
 		}
 
 		h1 {
+			width: 100%;
 			font-weight: 200;
 			text-align: center;
 			font-family: sans-serif;
-			font-size: 8rem;
+			font-size: 5vw;
 			margin-bottom: 30px;
 		}
 
 		button {
-			display: block;
-			font-size: 2rem;
-			background-color: rgb(184, 32, 32);
 			border: none;
 			outline: none;
-			padding: 1.5rem 18rem;
 			cursor: pointer;
 		}
 
-		button:hover {
-			background-color: rgb(219, 57, 57);
+		button#resume,
+		button#restart {
+			display: block;
+			font-size: 2rem;
+			padding: 1.5rem 0;
+			width: 100%;
 		}
 
-		button:active {
+		button#resume {
+			background-color: rgb(17, 168, 40);
+		}
+
+		@media (hover: none) {
+			button#resume:hover {
+				background-color: rgb(219, 57, 57);
+			}
+		}
+
+		button#resume:active {
 			background-color: rgb(184, 32, 32);
+		}
+
+		button#restart {
+			background-color: rgb(184, 32, 32);
+		}
+
+		@media (hover: none) {
+			button#restart:hover {
+				background-color: rgb(219, 57, 57);
+			}
+		}
+
+		button#restart:active {
+			background-color: rgb(184, 32, 32);
+		}
+
+		button#pause {
+			position: fixed;
+			top: 10px;
+			right: 10px;
+			width: 50px;
+			height: 50px;
+			font-size: 2rem;
+			background: transparent;
+			color: white;
+			content: "&#10074;&#10074;";
+		}
+
+		button#pause.paused {
+			content: "&#23F5;";
+		}
+
+		@media (hover: hover) {
+			button#pause:hover {
+				color: rgb(136, 136, 136);
+			}
+		}
+
+		button#pause:active {
+			color: rgb(216, 216, 216);
 		}
 	</style>
 </head>
 
 <body>
 	<canvas></canvas>
-	<div id="restart" class="hidden">
+	<div id="restart-screen" class="hidden">
 		<h1>Snake died</h1>
-		<button>RESTART</button>
+		<button id="restart">RESTART</button>
 	</div>
-	<div id="pause" class="hidden">
+	<div id="pause-screen" class="hidden">
 		<h1>PAUSED</h1>
-		<button>RESUME</button>
+		<button id="resume">RESUME</button>
 	</div>
+	<button id="pause">&#10074;&#10074;</button>
 	<script src="app.js"></script>
 </body>
 

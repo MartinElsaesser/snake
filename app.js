@@ -105,7 +105,6 @@ class Snake {
 		let heightSquares = Math.floor(window.innerHeight / this.squareSize);
 		let x = randInt(0, widthSquares) * this.squareSize;
 		let y = randInt(0, heightSquares) * this.squareSize;
-		console.log(x);
 		this.headPos.x = x
 		this.headPos.y = y;
 	}
@@ -317,10 +316,11 @@ function handleGesture(selector) {
 
 (function main() {
 	const canvas = document.querySelector("canvas");
-	const restartMenu = document.querySelector("#restart");
-	const pauseMenu = document.querySelector("#pause");
-	const restartButton = document.querySelector("#restart button");
-	const resumeButton = document.querySelector("#pause button");
+	const restartMenu = document.querySelector("#restart-screen");
+	const pauseMenu = document.querySelector("#pause-screen");
+	const restartButton = document.querySelector("button#restart");
+	const resumeButton = document.querySelector("button#resume");
+	const pauseButton = document.querySelector("button#pause");
 	handleGesture("canvas");
 	let draw = initDraw(canvas);
 
@@ -345,19 +345,28 @@ function handleGesture(selector) {
 	});
 
 	document.addEventListener("snake-died", (e) => {
+		pauseButton.className = "ended";
+		pauseButton.innerHTML = "&#9654;";
 		restartMenu.classList.remove("hidden");
 	});
 
 	restartButton.addEventListener("click", () => {
-		restartMenu.classList.add("hidden");
-		display.reset();
-		snake.reset();
+		restartGame();
 	});
 
 	resumeButton.addEventListener("click", () => {
-		pauseMenu.classList.add("hidden");
-		draw.start();
+		resumeGame();
 	});
+
+	pauseButton.addEventListener("click", () => {
+		if (pauseButton.className === "paused") {
+			resumeGame();
+		} else if (pauseButton.className === "") {
+			pauseGame();
+		} else if (pauseButton.className === "ended") {
+			restartGame();
+		}
+	})
 
 	canvas.addEventListener("swipe", (e) => {
 		snake.move(e.detail.swipeDirection)
@@ -382,10 +391,29 @@ function handleGesture(selector) {
 				snake.move("right");
 				break;
 			case "Escape":
-				draw.stop();
-				pauseMenu.classList.remove("hidden");
+				pauseGame();
 		}
-	})
+	});
+
+	function pauseGame() {
+		pauseMenu.classList.remove("hidden");
+		pauseButton.className = "paused";
+		pauseButton.innerHTML = "&#9654;";
+		draw.stop();
+	}
+	function resumeGame() {
+		pauseMenu.classList.add("hidden");
+		pauseButton.className = "";
+		pauseButton.innerHTML = "&#10074;&#10074;";
+		draw.start();
+	}
+	function restartGame() {
+		pauseButton.className = "";
+		pauseButton.innerHTML = "&#10074;&#10074;";
+		restartMenu.classList.add("hidden");
+		display.reset();
+		snake.reset();
+	}
 
 
 	let resizeCanvas = resize.bind(this, canvas);
