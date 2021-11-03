@@ -1,7 +1,3 @@
-function resize(canvas) {
-	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight;
-}
 function minmax(num, min, max) {
 	const MIN = min;
 	const MAX = max;
@@ -66,6 +62,7 @@ class Display {
 		this.canvas = canvas;
 		this.score = 0;
 		this.gameEnd = false;
+		this.paused = false;
 	}
 	paint(ctx) {
 		ctx.save();
@@ -80,6 +77,12 @@ class Display {
 			ctx.font = `${textSize}px sans-serif`;
 			ctx.textAlign = "center";
 			ctx.fillText(`YOU LOST`, this.canvas.width / 2, this.canvas.height / 2 + textSize / 2);
+		} else if (this.paused) {
+			let textSize = this.canvas.width / 10;
+			ctx.fillStyle = 'white';
+			ctx.font = `${textSize}px sans-serif`;
+			ctx.textAlign = "center";
+			ctx.fillText("PAUSED", this.canvas.width / 2, this.canvas.height / 2 + textSize / 2);
 		}
 		ctx.restore();
 	}
@@ -88,6 +91,12 @@ class Display {
 	}
 	reset() {
 		this.score = 0;
+	}
+	pause() {
+		this.paused = true;
+	}
+	resume() {
+		this.paused = false;
 	}
 }
 class Snake {
@@ -218,6 +227,7 @@ class Snake {
 	}
 	grow() {
 		this.tailLength += 1;
+		console.log(this.tailLength);
 	}
 	reset() {
 		this.tailLength = 5;
@@ -400,11 +410,13 @@ function handleGesture(selector) {
 		pauseButton.className = "paused";
 		pauseButton.innerHTML = "&#9654;";
 		snake.pause();
+		display.pause();
 	}
 	function resumeGame() {
 		pauseButton.className = "";
 		pauseButton.innerHTML = "&#10074;&#10074;";
 		snake.resume();
+		display.resume();
 	}
 	function restartGame() {
 		pauseButton.className = "";
@@ -415,10 +427,17 @@ function handleGesture(selector) {
 		display.gameEnd = false;
 	}
 
+	function resize() {
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+	}
 
-	let resizeCanvas = resize.bind(this, canvas);
-	resizeCanvas();
-	window.addEventListener("resize", resizeCanvas);
+	resize();
+	window.addEventListener("resize", () => {
+		resize();
+		resumeGame();
+		restartGame();
+	});
 })();
 
 
