@@ -10,6 +10,14 @@ function resize(canvas) {
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
 }
+function minmax(num, min, max) {
+	const MIN = min;
+	const MAX = max;
+	return Math.min(Math.max(num, MIN), MAX)
+}
+function randInt(min, max) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 class Grid {
 	constructor(canvas) {
@@ -58,7 +66,6 @@ class Grid {
 		}
 	}
 }
-
 class Display {
 	constructor(canvas) {
 		this.canvas = canvas;
@@ -78,33 +85,29 @@ class Display {
 		this.score = 0;
 	}
 }
-
-
-function minmax(num, min, max) {
-	const MIN = min;
-	const MAX = max;
-	return Math.min(Math.max(num, MIN), MAX)
-}
-
-function randInt(min, max) {
-	return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function ctg(x) { return 1 / Math.tan(x); }
-
 class Snake {
-	constructor(startPos, canvas) {
+	constructor(canvas) {
 		this.canvas = canvas;
 		this.travelledDistance = 0;
 		this.squareSize = 50;
 		this.tailLength = 5;
 		this.tail = [];
-		this.headPos = startPos;
+		this.headPos = {}
+		this.genSnakePos();
 		this.headDirection = [
 			{ speedX: -1, speedY: 0, type: "left" }
 		];
 		this.color = "#2ce82f";
 		this.gameEnd = false;
+	}
+	genSnakePos() {
+		let widthSquares = Math.floor(window.innerWidth / this.squareSize);
+		let heightSquares = Math.floor(window.innerHeight / this.squareSize);
+		let x = randInt(0, widthSquares) * this.squareSize;
+		let y = randInt(0, heightSquares) * this.squareSize;
+		console.log(x);
+		this.headPos.x = x
+		this.headPos.y = y;
 	}
 	paint(ctx) {
 		if (this.gameEnd) return false;
@@ -217,6 +220,7 @@ class Snake {
 		this.tail = [];
 		this.gameEnd = false;
 		this.travelledDistance = 0;
+		this.genSnakePos();
 	}
 }
 
@@ -256,6 +260,60 @@ let initDraw = function (canvas) {
 	}
 };
 
+function handleGesture(selector) {
+	let pageWidth = window.innerWidth || document.body.clientWidth;
+	let treshold = Math.max(1, Math.floor(0.01 * (pageWidth)));
+	let touchstartX = 0;
+	let touchstartY = 0;
+	let touchendX = 0;
+	let touchendY = 0;
+
+	const limit = Math.tan(45 * 1.5 / 180 * Math.PI);
+	const targetElem = document.querySelector(selector);
+
+	targetElem.addEventListener('touchstart', function (event) {
+		touchstartX = event.changedTouches[0].screenX;
+		touchstartY = event.changedTouches[0].screenY;
+	}, false);
+
+	targetElem.addEventListener('touchend', function (event) {
+		touchendX = event.changedTouches[0].screenX;
+		touchendY = event.changedTouches[0].screenY;
+		handleGesture(event);
+	}, false);
+
+	function handleGesture(e) {
+		let x = touchendX - touchstartX;
+		let y = touchendY - touchstartY;
+		let xy = Math.abs(x / y);
+		let yx = Math.abs(y / x);
+		if (Math.abs(x) > treshold || Math.abs(y) > treshold) {
+			let swipeDirection = "";
+			if (yx <= limit) {
+				if (x < 0) {
+					swipeDirection = "left";
+				} else {
+					swipeDirection = "right";
+				}
+			}
+			if (xy <= limit) {
+				if (y < 0) {
+					swipeDirection = "up";
+				} else {
+					swipeDirection = "down";
+				}
+			}
+			const event = new CustomEvent("swipe", {
+				detail: { swipeDirection }
+			});
+			targetElem.dispatchEvent(event);
+		} else {
+			const event = new CustomEvent("tap", { detail: { x: touchendX, y: touchendY } });
+			targetElem.dispatchEvent(event);
+		}
+	}
+}
+
 
 (function main() {
 	const canvas = document.querySelector("canvas");
@@ -263,16 +321,18 @@ let initDraw = function (canvas) {
 	const pauseMenu = document.querySelector("#pause");
 	const restartButton = document.querySelector("#restart button");
 	const resumeButton = document.querySelector("#pause button");
+	handleGesture("canvas");
 	let draw = initDraw(canvas);
 
 	const grid = new Grid(canvas);
-	const snake = new Snake({ x: 500, y: 100 }, canvas);
+	const snake = new Snake(canvas);
 	const display = new Display();
 
 	draw.addShape(grid);
 	draw.addShape(snake);
 	draw.addShape(display);
 	draw.start();
+
 
 	document.addEventListener("snake-moved", (e) => {
 		let xDifference = Math.abs(Math.round(e.detail.x - grid.apple.x));
@@ -297,6 +357,10 @@ let initDraw = function (canvas) {
 	resumeButton.addEventListener("click", () => {
 		pauseMenu.classList.add("hidden");
 		draw.start();
+	});
+
+	canvas.addEventListener("swipe", (e) => {
+		snake.move(e.detail.swipeDirection)
 	});
 
 	window.addEventListener("keydown", e => {
