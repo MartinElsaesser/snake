@@ -316,10 +316,6 @@ function handleGesture(selector) {
 
 (function main() {
 	const canvas = document.querySelector("canvas");
-	const restartMenu = document.querySelector("#restart-screen");
-	const pauseMenu = document.querySelector("#pause-screen");
-	const restartButton = document.querySelector("button#restart");
-	const resumeButton = document.querySelector("button#resume");
 	const pauseButton = document.querySelector("button#pause");
 	handleGesture("canvas");
 	let draw = initDraw(canvas);
@@ -347,16 +343,8 @@ function handleGesture(selector) {
 	document.addEventListener("snake-died", (e) => {
 		pauseButton.className = "ended";
 		pauseButton.innerHTML = "&#9654;";
-		restartMenu.classList.remove("hidden");
 	});
 
-	restartButton.addEventListener("click", () => {
-		restartGame();
-	});
-
-	resumeButton.addEventListener("click", () => {
-		resumeGame();
-	});
 
 	pauseButton.addEventListener("click", () => {
 		if (pauseButton.className === "paused") {
@@ -396,13 +384,11 @@ function handleGesture(selector) {
 	});
 
 	function pauseGame() {
-		pauseMenu.classList.remove("hidden");
 		pauseButton.className = "paused";
 		pauseButton.innerHTML = "&#9654;";
 		draw.stop();
 	}
 	function resumeGame() {
-		pauseMenu.classList.add("hidden");
 		pauseButton.className = "";
 		pauseButton.innerHTML = "&#10074;&#10074;";
 		draw.start();
@@ -410,7 +396,6 @@ function handleGesture(selector) {
 	function restartGame() {
 		pauseButton.className = "";
 		pauseButton.innerHTML = "&#10074;&#10074;";
-		restartMenu.classList.add("hidden");
 		display.reset();
 		snake.reset();
 	}

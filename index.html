@@ -23,83 +23,10 @@
 			background-color: black;
 		}
 
-		#restart-screen,
-		#pause-screen {
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			width: 90vw;
-			height: 80vh;
-			background: rgb(101, 106, 126);
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			flex-flow: column;
-			opacity: 1;
-			transition: opacity 1s;
-		}
-
-		#restart-screen.hidden,
-		#pause-screen.hidden {
-			opacity: 0;
-			z-index: -1;
-		}
-
-		#restart-screen.hidden *,
-		#pause-screen.hidden * {
-			display: none;
-		}
-
-		h1 {
-			width: 100%;
-			font-weight: 200;
-			text-align: center;
-			font-family: sans-serif;
-			font-size: 5vw;
-			margin-bottom: 30px;
-		}
-
 		button {
 			border: none;
 			outline: none;
 			cursor: pointer;
-		}
-
-		button#resume,
-		button#restart {
-			display: block;
-			font-size: 2rem;
-			padding: 1.5rem 0;
-			width: 100%;
-		}
-
-		button#resume {
-			background-color: rgb(17, 168, 40);
-		}
-
-		@media (hover: none) {
-			button#resume:hover {
-				background-color: rgb(219, 57, 57);
-			}
-		}
-
-		button#resume:active {
-			background-color: rgb(184, 32, 32);
-		}
-
-		button#restart {
-			background-color: rgb(184, 32, 32);
-		}
-
-		@media (hover: none) {
-			button#restart:hover {
-				background-color: rgb(219, 57, 57);
-			}
-		}
-
-		button#restart:active {
-			background-color: rgb(184, 32, 32);
 		}
 
 		button#pause {
@@ -132,14 +59,6 @@
 
 <body>
 	<canvas></canvas>
-	<div id="restart-screen" class="hidden">
-		<h1>Snake died</h1>
-		<button id="restart">RESTART</button>
-	</div>
-	<div id="pause-screen" class="hidden">
-		<h1>PAUSED</h1>
-		<button id="resume">RESUME</button>
-	</div>
 	<button id="pause">&#10074;&#10074;</button>
 	<script src="app.js"></script>
 </body>
